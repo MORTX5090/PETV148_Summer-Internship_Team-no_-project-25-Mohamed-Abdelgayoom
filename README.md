@@ -12,6 +12,21 @@ A smart web security platform that scans HTTP Security Headers, identifies secur
 - **Database:** SQLite
 - **Security Standards:** OWASP & Mozilla Observatory
 
+## 📂 هيكلية المشروع (Project Architecture)
+
+هذا التوضيح يشرح محتويات كل ملف ودوره في النظام:
+
+| الملف/المجلد | الوظيفة الأساسية | التقنيات المستخدمة |
+| :--- | :--- | :--- |
+| `app.py` | الملف الرئيسي (Controller) للربط بين الواجهات والمحركات | Flask |
+| `scanner.py` | محرك فحص المواقع وجلب وتحليل الـ Security Headers | Python Requests |
+| `database.py` | إدارة الاتصال بقاعدة البيانات وحفظ سجلات الفحص | SQLite |
+| `templates/` | مجلد واجهات المستخدم (HTML files) | Jinja2 |
+| `static/` | ملفات التصميم (CSS) والوسائط (Assets) | Bootstrap, CSS |
+| `requirements.txt` | قائمة المكتبات والمتطلبات البرمجية للمشروع | pip |
+
+---
+
 ## 👥 فريق العمل وتوزيع المهام
 تم تقسيم العمل إلى فروع (Branches) لضمان تنظيم الكود:
 
