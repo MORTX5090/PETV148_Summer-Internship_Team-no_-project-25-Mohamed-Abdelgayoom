@@ -2,6 +2,7 @@
 
 from flask import Flask,request,render_template,jsonify
 from scanner import scan_headers
+from hardener import generate_fixes
 
 app = Flask(__name__)
 
@@ -15,7 +16,16 @@ def scan():
     if not target_url:
         return jsonify({"success": False, "error": "URL parameter is missing"})
     scan_result = scan_headers(target_url)
-    return jsonify(scan_result)
+    missing_headers_list =[]
+
+    if scan_result.get('success') and  'results' in scan_result:
+        for item in scan_result['results']:
+            if item.get('status') == 'Missing':
+                missing_headers_list.append(item.get('header'))
+        fixes = generate_fixes(missing_headers_list)
+        scan_result['fixes'] = fixes
+    return jsonify(scan_result)     
 
 if __name__ == '__main__':
     app.run(debug=True)
+
