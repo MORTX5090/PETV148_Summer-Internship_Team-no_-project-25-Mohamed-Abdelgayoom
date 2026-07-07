@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+
+        <div class="text-center mb-4">
+            <h2 class="text-white fw-bold"><i class="bi bi-shield-lock text-info me-2"></i>Restricted Area</h2>
+            <p class="text-white-50">Please enter the admin passcode to access the dashboard.</p>
+        </div>
+
+        <div class="scanner-card" style="width: 100%; max-width: 400px; margin-top: 0;">
+            {% if error %}
+            <div class="alert alert-danger"
+                style="background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); color: #ff6b6b;"
+                role="alert">
+                <i class="bi bi-shield-x me-2"></i> {{ error }}
+            </div>
+            {% endif %}
+
+            <form action="/login" method="POST">
+                <div class="input-group cyber-input-group mb-4">
+                    <span class="input-group-text"><i class="bi bi-key"></i></span>
+                    <input type="password" class="form-control cyber-input p-3" name="password"
+                        placeholder="Enter Passcode" required>
+                </div>
+                <button type="submit" class="btn cyber-btn w-100 p-3">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Access Dashboard
+                </button>
+            </form>
+
+            <div class="text-center mt-4">
+                <a href="/" class="text-info text-decoration-none" style="font-size: 0.9rem;">
+                    <i class="bi bi-arrow-left"></i> Back to Home
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

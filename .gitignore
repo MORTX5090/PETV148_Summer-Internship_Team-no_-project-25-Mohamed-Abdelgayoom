@@ -144,10 +144,14 @@ vite.config.ts.timestamp-*
 
 # vscode settings
 .vscode
-.vscode/settings.json
+settings.json
 
 #venv
 venv/
 
 # python cache
 __pycache__/
+
+# security_scanner
+security_scanner.db
+ 

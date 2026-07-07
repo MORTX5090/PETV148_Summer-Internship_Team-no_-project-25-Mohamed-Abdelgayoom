@@ -4,41 +4,199 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTTP Security Headers Hardener</title>
-
+    
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom CSS from static folder -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
 
-<div class="container">
+    <!-- Transparent Navbar -->
+    <nav class="navbar cyber-nav">
+        <div class="container-fluid px-4 px-md-5">
+            <a class="navbar-brand cyber-brand" href="/">
+                <i class="bi bi-shield-check shield-icon"></i>
+                SECURITY HARDENER
+            </a>
+            <!-- Admin Dashboard Link -->
+            <a href="/login" class="btn btn-outline-secondary btn-sm rounded-pill" title="Admin Dashboard">
+                <i class="bi bi-gear-fill"></i> Admin
+            </a>
+        </div>
+    </nav>
 
-    <div class="scanner-card">
+    <!-- Main Content -->
+    <div class="container-fluid px-4 px-md-5 flex-grow-1 py-4">
+        
+        <!-- Hero Titles & Description -->
+        <div class="row justify-content-center text-center mb-4">
+            <div class="col-lg-8">
+                <h1 class="hero-title mb-3">Analyze & Harden Your Website</h1>
+                <p class="lead" style="color: rgba(255,255,255,0.7); font-size: 1.1rem;">
+                    Protect your web applications from XSS, Clickjacking, and other common vulnerabilities.
+                </p>
+            </div>
+        </div>
 
-        <h1>HTTP Security Headers Hardener</h1>
+        <!-- Features Section (Restored Above the Scanner) -->
+        <div class="row justify-content-center text-center feature-box mb-5">
+            <div class="col-md-3 mb-3">
+                <i class="bi bi-shield feature-icon fs-1"></i>
+                <div class="feature-title mt-2 text-white">REAL-TIME HEADER ANALYSIS</div>
+                <div class="feature-desc">Comprehensive scan.</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <i class="bi bi-code-slash feature-icon fs-1"></i>
+                <div class="feature-title mt-2 text-white">CONFIGURATION RULES</div>
+                <div class="feature-desc">Apache & Nginx.</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <i class="bi bi-check2 feature-icon fs-1"></i>
+                <div class="feature-title mt-2 text-white">VULNERABILITY REPORTS</div>
+                <div class="feature-desc">Detailed insights.</div>
+            </div>
+        </div>
 
-        <p class="subtitle">
-            Scan any website and check whether it follows HTTP Security Header best practices.
-        </p>
+        <!-- Scanner Input -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-12">
+                <div class="scanner-card mx-auto" style="max-width: 600px; margin-top: 0;">
+                    {% if error %}
+                    <div class="alert alert-danger" style="background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); color: #ff6b6b;" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i> {{ error }}
+                    </div>
+                    {% endif %}
+                    
+                    <div id="customError" class="alert alert-danger d-none" style="background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); color: #ff6b6b;" role="alert">
+                        <i class="bi bi-shield-x me-2"></i> <strong>Invalid Input:</strong> Please enter a valid URL.
+                    </div>
 
-        <form action="/scan" method="POST">
+                    <form id="scanForm" action="/scan" method="POST" novalidate>
+                        <div class="input-group cyber-input-group mb-3" id="inputContainer">
+                            <span class="input-group-text"><i class="bi bi-globe"></i></span>
+                            <input id="urlInput" type="url" class="form-control cyber-input p-3" name="url" placeholder="https://example.com" required>
+                        </div>
+                        <button type="submit" class="btn cyber-btn w-100 p-3">
+                            <i class="bi bi-search me-2"></i> Scan Website
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
 
-            <input
-                type="text"
-                class="form-control form-control-lg"
-                name="url"
-                placeholder="https://example.com"
-                required>
+        <!-- 4 Columns Statistics Section -->
+        <div class="row g-4 mt-2 mb-5">
+            
+            <!-- 1. Grand Totals -->
+            <div class="col-xl-3 col-md-6">
+                <div class="dash-card">
+                    <div class="dash-title"><i class="bi bi-pie-chart text-info"></i> Grand Totals</div>
+                    <table class="dash-table">
+                        <tbody>
+                            {% for row in stats.totals %}
+                            <tr>
+                                <td>Grade <strong class="text-white">{{ row.grade }}</strong></td>
+                                <td class="grade-cell text-info">{{ row.count }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="2" class="text-center">No data available</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-            <button class="btn btn-primary btn-lg mt-4 w-100">
-                Scan Website
-            </button>
+            <!-- 2. Recent Scans -->
+            <div class="col-xl-3 col-md-6">
+                <div class="dash-card">
+                    <div class="dash-title"><i class="bi bi-clock-history text-secondary"></i> Recent Scans</div>
+                    <table class="dash-table">
+                        <tbody>
+                            {% for row in stats.recent %}
+                            <tr>
+                                <td class="url-cell"><a href="{{ row.url }}" target="_blank" title="{{ row.url }}">{{ row.url }}</a></td>
+                                <td class="grade-cell {% if row.grade in ['A+', 'A'] %}text-success{% elif row.grade in ['B', 'C'] %}text-warning{% else %}text-danger{% endif %}">{{ row.grade }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="2" class="text-center">No recent scans</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-        </form>
+            <!-- 3. Hall of Fame -->
+            <div class="col-xl-3 col-md-6">
+                <div class="dash-card" style="border-top: 3px solid #198754;">
+                    <div class="dash-title"><i class="bi bi-trophy text-success"></i> Hall of Fame</div>
+                    <table class="dash-table">
+                        <tbody>
+                            {% for row in stats.hall_of_fame %}
+                            <tr>
+                                <td class="url-cell"><a href="{{ row.url }}" target="_blank" title="{{ row.url }}">{{ row.url }}</a></td>
+                                <td class="grade-cell text-success">{{ row.grade }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="2" class="text-center">No secure sites yet</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. Hall of Shame -->
+            <div class="col-xl-3 col-md-6">
+                <div class="dash-card" style="border-top: 3px solid #dc3545;">
+                    <div class="dash-title"><i class="bi bi-exclamation-octagon text-danger"></i> Hall of Shame</div>
+                    <table class="dash-table">
+                        <tbody>
+                            {% for row in stats.hall_of_shame %}
+                            <tr>
+                                <td class="url-cell"><a href="{{ row.url }}" target="_blank" title="{{ row.url }}">{{ row.url }}</a></td>
+                                <td class="grade-cell text-danger">{{ row.grade }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="2" class="text-center">No vulnerable sites yet</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
 
     </div>
 
-</div>
+    <!-- Footer -->
+    <div class="container-fluid text-center py-4 border-top" style="border-color: rgba(255,255,255,0.05) !important;">
+        <p class="mb-0" style="color: rgba(255,255,255,0.4); font-size: 0.8rem;">
+            © 2026 HTTP Security Headers Hardener. Built with Flask & Bootstrap.
+        </p>
+    </div>
 
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        document.getElementById('scanForm').addEventListener('submit', function(e) {
+            const urlInput = document.getElementById('urlInput');
+            const customError = document.getElementById('customError');
+            const inputContainer = document.getElementById('inputContainer');
+
+            if (!urlInput.value || !urlInput.checkValidity()) {
+                e.preventDefault(); 
+                customError.classList.remove('d-none'); 
+                inputContainer.style.borderColor = '#ff6b6b';
+                inputContainer.style.boxShadow = '0 0 15px rgba(220, 53, 69, 0.3)';
+            }
+        });
+
+        document.getElementById('urlInput').addEventListener('input', function() {
+            document.getElementById('customError').classList.add('d-none');
+            document.getElementById('inputContainer').style.borderColor = 'rgba(13, 202, 240, 0.4)';
+            document.getElementById('inputContainer').style.boxShadow = 'none';
+        });
+    </script>
 </body>
 </html>

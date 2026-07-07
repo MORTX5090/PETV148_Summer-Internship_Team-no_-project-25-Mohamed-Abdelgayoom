@@ -1,128 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Result</title>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-<title>Scan Result</title>
+    <!-- Cyber Security Theme Styles -->
+    <style>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
+    </style>
 </head>
 
 <body>
 
-<div class="container py-5">
+    <!-- Transparent Navbar -->
+    <nav class="navbar cyber-nav mb-5">
+        <div class="container">
+            <a class="cyber-brand" href="/">
+                <i class="bi bi-shield-check"
+                    style="color: #0dcaf0; font-size: 1.5rem; text-shadow: 0 0 15px rgba(13,202,240,0.6);"></i>
+                SECURITY HARDENER
+            </a>
+        </div>
+    </nav>
 
-<h1 class="text-center mb-4">
-Scan Result
-</h1>
+    <div class="container pb-5">
 
-<div class="summary-card">
+        <!-- Summary Card (Dynamically Colored) -->
+        <div
+            class="glass-card text-center p-5 mb-5 {% if score >= 75 %}glow-success{% elif score >= 50 %}glow-warning{% else %}glow-danger{% endif %}">
+            <h3 class="text-white mb-2" style="word-break: break-all;">{{ url }}</h3>
+            <p class="text-white-50 mb-4">HTTP Status: <strong class="text-info">{{ status_code }}</strong></p>
 
-<h3>{{ url }}</h3>
+            <div class="display-1 fw-bold mb-2 {% if score >= 75 %}text-success{% elif score >= 50 %}text-warning{% else %}text-danger{% endif %}"
+                style="text-shadow: 0 0 20px currentColor;">
+                {{ score }}<span class="fs-4 text-white-50">/100</span>
+            </div>
+            <h4 class="fw-light text-white mt-3">
+                Grade : <span
+                    class="badge {% if score >= 75 %}bg-success{% elif score >= 50 %}bg-warning{% else %}bg-danger{% endif %} border border-light border-opacity-25 fs-5 ms-2 px-3 py-2">{{
+                    grade }}</span>
+            </h4>
+        </div>
 
-<p>
-HTTP Status :
-<strong>{{ status_code }}</strong>
-</p>
+        <!-- Scan Results Table -->
+        <div class="glass-card overflow-hidden mb-5">
+            <div class="table-responsive">
+                <table class="table cyber-table mb-0">
+                    <thead>
+                        <tr>
+                            <th class="p-4">Header</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4 text-center">Score</th>
+                            <th class="p-4">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in results %}
+                        <tr>
+                            <td class="p-4 fw-bold text-light">{{ item.header }}</td>
+                            <td class="p-4">
+                                {% if item.status == "Present" %}
+                                <span
+                                    class="badge bg-success bg-opacity-25 border border-success text-success px-3 py-2">
+                                    <i class="bi bi-check-circle me-1"></i> Present
+                                </span>
+                                {% else %}
+                                <span class="badge bg-danger bg-opacity-25 border border-danger text-danger px-3 py-2">
+                                    <i class="bi bi-x-circle me-1"></i> Missing
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="p-4 text-center text-white-50 fs-5">{{ item.score }}</td>
+                            <td class="p-4 text-white-50" style="word-break: break-all; font-family: monospace;">{{
+                                item.value }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-<h2 class="{% if score >= 75 %}good{% else %}bad{% endif %}">
-{{ score }}/100
-</h2>
+        <!-- Recommendations Section -->
+        {% if recommendations %}
+        <div class="glass-card p-4 mb-5" style="border-left: 4px solid #ffc107;">
+            <h4 class="text-warning mb-4"><i class="bi bi-lightbulb me-2"></i>Recommendations</h4>
+            <ul class="text-white-50 mb-0" style="list-style-type: none; padding-left: 0;">
+                {% for rec in recommendations %}
+                <li class="mb-3"><i class="bi bi-arrow-right-short text-warning fs-5 align-middle me-1"></i>{{ rec }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
 
-<h4>
-Grade : {{ grade }}
-</h4>
+        <!-- Security Hardener Fixes (Only shows if there are actual fixes inside the list) -->
+        {% if fixes and fixes.apache|length > 0 %}
+        <div class="glass-card p-5 mb-5" style="border-top: 4px solid #0dcaf0;">
+            <div class="text-center mb-5">
+                <h3 class="text-white fw-bold mb-2"><i class="bi bi-tools text-info me-2"></i>Security Hardener Fixes
+                </h3>
+                <p class="text-white-50">Copy these configurations to secure your servers.</p>
+            </div>
 
-</div>
+            <div class="row g-4">
+                <!-- Apache Fixes -->
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-info mb-0"><i class="bi bi-server me-2"></i>Apache Server</h5>
+                        <button class="btn btn-sm btn-outline-info rounded-pill px-3"
+                            onclick="copyCode('apache-code', this)">
+                            <i class="bi bi-clipboard me-1"></i>Copy
+                        </button>
+                    </div>
+                    <pre class="cyber-pre"><code id="apache-code" class="text-info">{% for fix in fixes.apache %}{{ fix }}
+{% endfor %}</code></pre>
+                </div>
 
-<table class="table table-bordered table-hover mt-4">
+                <!-- Nginx Fixes -->
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-success mb-0"><i class="bi bi-hdd-network me-2"></i>Nginx Server</h5>
+                        <button class="btn btn-sm btn-outline-success rounded-pill px-3"
+                            onclick="copyCode('nginx-code', this)">
+                            <i class="bi bi-clipboard me-1"></i>Copy
+                        </button>
+                    </div>
+                    <pre class="cyber-pre"><code id="nginx-code" class="text-success">{% for fix in fixes.nginx %}{{ fix }}
+{% endfor %}</code></pre>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
-<thead class="table-dark">
+        <!-- Back Button -->
+        <div class="text-center mt-5">
+            <a href="/" class="btn cyber-btn px-5 py-3 fs-5 shadow-lg">
+                <i class="bi bi-arrow-left-circle me-2"></i> Scan Another Website
+            </a>
+        </div>
 
-<tr>
+    </div>
 
-<th>Header</th>
-
-<th>Status</th>
-
-<th>Score</th>
-
-<th>Value</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-{% for item in results %}
-
-<tr>
-
-<td>{{ item.header }}</td>
-
-<td>
-
-{% if item.status == "Present" %}
-
-<span class="badge bg-success">
-Present
-</span>
-
-{% else %}
-
-<span class="badge bg-danger">
-Missing
-</span>
-
-{% endif %}
-
-</td>
-
-<td>{{ item.score }}</td>
-
-<td>{{ item.value }}</td>
-
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
-
-{% if recommendations %}
-
-<div class="recommendation-box">
-
-<h4>Recommendations</h4>
-
-<ul>
-
-{% for rec in recommendations %}
-
-<li>{{ rec }}</li>
-
-{% endfor %}
-
-</ul>
-
-</div>
-
-{% endif %}
-
-<a href="/" class="btn btn-secondary mt-4">
-
-Scan Another Website
-
-</a>
-
-</div>
-
+    <!-- External JavaScript -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
+
 </html>
