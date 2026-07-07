@@ -1,4 +1,4 @@
-// Function to copy text from a specific code block
+// Function to copy text from a specific code block.
 function copyCode(elementId, button) {
     // 1. Get the text content from the target code block
     const textToCopy = document.getElementById(elementId).innerText;
