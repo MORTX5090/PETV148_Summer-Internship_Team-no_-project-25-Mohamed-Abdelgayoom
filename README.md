@@ -10,7 +10,7 @@
 
   <br />
 
-  <a href="https://secureheader-pro.onrender.com"><View The Webside Now !</strong></a>
+  <a href="https://secureheader-pro.onrender.com"><strong>View The Webside Now !</strong></a>
   
 </div>
 
