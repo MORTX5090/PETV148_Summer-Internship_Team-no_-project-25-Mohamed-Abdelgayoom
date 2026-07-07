@@ -148,3 +148,6 @@ vite.config.ts.timestamp-*
 
 #venv
 venv/
+
+# python cache
+__pycache__/
